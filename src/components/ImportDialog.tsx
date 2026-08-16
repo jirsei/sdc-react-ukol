@@ -398,23 +398,23 @@ export default function ImportDialog({
                       <TableRow
                         key={`${row.uid}-${String(index)}`}
                         sx={{
-                          backgroundColor: row.conflicting
-                            ? 'warning.light'
-                            : row.valid
-                              ? 'background.paper'
-                              : 'error.light',
+                          backgroundColor: !row.valid
+                            ? 'error.light'
+                            : row.conflicting
+                              ? 'warning.light'
+                              : 'background.paper',
                           opacity: row.valid || row.conflicting ? 1 : 0.95,
                           '& td': {
-                            color: row.conflicting
+                            color: !row.valid
                               ? 'background.paper'
-                              : row.valid
-                                ? 'text.primary'
-                                : 'background.paper',
-                            borderColor: row.conflicting
-                              ? 'warning.main'
-                              : row.valid
-                                ? 'divider'
-                                : 'error.light',
+                              : row.conflicting
+                                ? 'background.paper'
+                                : 'text.primary',
+                            borderColor: !row.valid
+                              ? 'error.light'
+                              : row.conflicting
+                                ? 'warning.main'
+                                : 'divider',
                           },
                           '&:last-child td': { borderBottom: 0 },
                         }}
@@ -425,17 +425,17 @@ export default function ImportDialog({
                         <TableCell>{row.email}</TableCell>
                         <TableCell>{row.phoneNumber}</TableCell>
                         <TableCell>
-                          {row.conflicting ? (
+                          {!row.valid ? (
+                            <Chip label="Invalid" size="small" color="error" />
+                          ) : row.conflicting ? (
                             <Chip
                               label="Conflicts"
                               size="small"
                               color="warning"
                               sx={{ fontWeight: 600 }}
                             />
-                          ) : row.valid ? (
-                            <Chip label="Ready" size="small" color="success" />
                           ) : (
-                            <Chip label="Invalid" size="small" color="error" />
+                            <Chip label="Ready" size="small" color="success" />
                           )}
                         </TableCell>
                       </TableRow>

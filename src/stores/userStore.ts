@@ -33,7 +33,7 @@ const sampleUsers = (): User[] => {
     ['Lukas', 'Havel'],
   ];
   return names.map((n, i) => ({
-    uid: `u-${String(i + 1)}`,
+    uid: String(i + 1),
     firstName: n[0],
     lastName: n[1],
     username: `${n[0].toLowerCase()}.${n[1].toLowerCase()}`,
@@ -41,7 +41,7 @@ const sampleUsers = (): User[] => {
     phoneNumber: `+420 700 000 ${String(100 + i)}`,
     accessAllowed: i % 3 !== 0,
     hiredSince: new Date(2020, i % 12, (i + 1) * 2).toISOString(),
-    location: i % 2 === 0 ? 'Prague' : 'Brno',
+    location: '[52.0, 16.2]',
   }));
 };
 

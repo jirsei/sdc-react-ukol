@@ -216,7 +216,7 @@ export default function UsersPage() {
 
   const filteredAndSortedUsers = users
     .filter(filterUsersByText)
-    .sort((a, b) => a.uid.localeCompare(b.uid));
+    .sort((a, b) => Number(a.uid) - Number(b.uid));
 
   const maxPage = Math.max(0, Math.ceil(filteredAndSortedUsers.length / rowsPerPage) - 1);
   const safePage = Math.min(page, maxPage);
