@@ -1,0 +1,5 @@
+.app-container {
+  background-color: var(--app-background-color);
+  background: var(--app-background);
+  font-family: 'Roboto', sans-serif;
+}
