@@ -1,0 +1,72 @@
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import UsersTable from '../components/UsersTable';
+import { useUserStore } from '../stores/userStore';
+import type { User } from '../types/User';
+
+export default function UsersPage() {
+  const users = useUserStore((s) => s.users);
+  const selectedIds = useUserStore((s) => s.selectedIds);
+  const page = useUserStore((s) => s.page);
+  const rowsPerPage = useUserStore((s) => s.rowsPerPage);
+  const toggleSelect = useUserStore((s) => s.toggleSelect);
+  const selectAll = useUserStore((s) => s.selectAll);
+  const deleteSelected = useUserStore((s) => s.deleteSelected);
+  const setPage = useUserStore((s) => s.setPage);
+  const setRowsPerPage = useUserStore((s) => s.setRowsPerPage);
+
+  const handleRowClick = (u: User) => {
+    // detail view to be implemented later
+    console.log('row clicked', u.uid);
+  };
+
+  const handleSelectAllVisible = (uids: string[]) => {
+    selectAll(uids);
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedIds.length === 0) return;
+    if (!confirm(`Delete ${String(selectedIds.length)} selected users?`)) return;
+    deleteSelected();
+  };
+
+  const maxPage = Math.max(0, Math.ceil(users.length / rowsPerPage) - 1);
+  const safePage = Math.min(page, maxPage);
+  const start = safePage * rowsPerPage;
+  const visible = users.slice(start, start + rowsPerPage);
+
+  return (
+    <Box p={2}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h5">Users</Typography>
+        <Box>
+          <Button variant="outlined" sx={{ mr: 1 }}>
+            Import
+          </Button>
+          <Button variant="contained">Add user</Button>
+        </Box>
+      </Box>
+
+      <Box mb={1} display="flex" justifyContent="space-between" alignItems="center">
+        <Typography>{users.length} users</Typography>
+        <Button color="error" variant="outlined" onClick={handleDeleteSelected}>
+          Delete selected ({selectedIds.length})
+        </Button>
+      </Box>
+
+      <UsersTable
+        users={visible}
+        total={users.length}
+        page={safePage}
+        rowsPerPage={rowsPerPage}
+        selectedIds={selectedIds}
+        onToggleSelect={toggleSelect}
+        onSelectAllVisible={handleSelectAllVisible}
+        onRowClick={handleRowClick}
+        onPageChange={setPage}
+        onRowsPerPageChange={setRowsPerPage}
+      />
+    </Box>
+  );
+}
