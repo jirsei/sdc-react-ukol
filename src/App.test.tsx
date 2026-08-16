@@ -24,6 +24,24 @@ describe('App', () => {
   });
 });
 
+describe('ImportDialog', () => {
+  it('opens and enables next when a CSV file is selected', async () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('button', { name: /import/i }));
+    const dialog = await screen.findByRole('dialog');
+
+    const input = within(dialog).getByLabelText(/select csv file/i);
+    expect(input).toHaveAttribute('accept', '.csv');
+
+    const file = new File(['firstName,lastName\nAlice,Smith'], 'users.csv', { type: 'text/csv' });
+    fireEvent.change(input, { target: { files: [file] } });
+
+    expect(within(dialog).getAllByText(/users\.csv/i).length).toBeGreaterThan(0);
+    expect(within(dialog).getByRole('button', { name: /^next$/i })).toBeEnabled();
+  });
+});
+
 describe('userStore pagination safety', () => {
   beforeEach(() => {
     useUserStore.setState({

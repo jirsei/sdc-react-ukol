@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import ConfirmDialog from '../components/ConfirmDialog';
+import ImportDialog from '../components/ImportDialog';
 import UserDetailDialog from '../components/UserDetailDialog';
 import UsersTable from '../components/UsersTable';
 import { useUserStore } from '../stores/userStore';
@@ -23,6 +24,7 @@ export default function UsersPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
 
   const handleRowClick = (u: User) => {
     setSelectedUser(u);
@@ -58,6 +60,19 @@ export default function UsersPage() {
     setConfirmDeleteOpen(true);
   };
 
+  const handleImportClick = () => {
+    setImportDialogOpen(true);
+  };
+
+  const handleImportClose = () => {
+    setImportDialogOpen(false);
+  };
+
+  const handleImportNext = (file: File) => {
+    console.log('Selected CSV for import validation:', file.name);
+    setImportDialogOpen(false);
+  };
+
   const handleConfirmDelete = () => {
     deleteSelected();
     setConfirmDeleteOpen(false);
@@ -77,7 +92,7 @@ export default function UsersPage() {
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Typography variant="h5">Users</Typography>
         <Box>
-          <Button variant="outlined" sx={{ mr: 1 }}>
+          <Button variant="outlined" sx={{ mr: 1 }} onClick={handleImportClick}>
             Import
           </Button>
           <Button variant="contained" onClick={handleAddUser}>
@@ -117,6 +132,13 @@ export default function UsersPage() {
         existingUsers={users}
         onClose={handleCloseDialog}
         onSubmit={handleSubmitUser}
+      />
+
+      <ImportDialog
+        key={importDialogOpen ? 'import-open' : 'import-closed'}
+        open={importDialogOpen}
+        onClose={handleImportClose}
+        onNext={handleImportNext}
       />
 
       <ConfirmDialog
