@@ -9,6 +9,12 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import type { User } from '../types/User';
+import {
+  getEmailValidationError,
+  normalizeUser,
+  validateUser,
+  type FormErrors,
+} from '../utils/userValidation';
 
 interface UserDetailDialogProps {
   open: boolean;
@@ -17,8 +23,6 @@ interface UserDetailDialogProps {
   onClose: () => void;
   onSubmit: (user: User) => void;
 }
-
-type FormErrors = Partial<Record<keyof User, string>>;
 
 const generateUniqueUid = (users: User[] = []): string => {
   const usedIds = new Set(users.map((user) => user.uid).filter(Boolean));
@@ -69,72 +73,6 @@ const buildInitialForm = (user?: User | null, existingUsers: User[] = []): User 
     location: user.location ?? '',
   };
 };
-
-const getEmailValidationError = (
-  email: string,
-  existingUsers: User[] = [],
-  ignoredUid?: string,
-): string | undefined => {
-  const trimmedEmail = email.trim();
-
-  if (!trimmedEmail) {
-    return 'Email is required.';
-  }
-
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-    return 'Email is invalid.';
-  }
-
-  const normalizedEmail = trimmedEmail.toLowerCase();
-  const duplicateUser = existingUsers.find(
-    (existingUser) =>
-      existingUser.uid !== ignoredUid &&
-      existingUser.email.trim().toLowerCase() === normalizedEmail,
-  );
-
-  return duplicateUser ? 'Email already exists.' : undefined;
-};
-
-const getPhoneValidationError = (phoneNumber: string): string | undefined => {
-  const trimmedPhone = phoneNumber.trim();
-
-  if (!trimmedPhone) {
-    return 'Phone number is required.';
-  }
-
-  if (!/^\+?\d+(\s\d+)*$/.test(trimmedPhone)) {
-    return 'Phone number must contain only numbers, optional + at start, and single spaces between numbers.';
-  }
-
-  return undefined;
-};
-
-const validateUser = (user: User, existingUsers: User[] = [], ignoredUid?: string): FormErrors => {
-  const errors: FormErrors = {};
-
-  if (!user.firstName.trim()) errors.firstName = 'First name is required.';
-  if (!user.lastName.trim()) errors.lastName = 'Last name is required.';
-
-  const emailError = getEmailValidationError(user.email, existingUsers, ignoredUid);
-  if (emailError) errors.email = emailError;
-
-  const phoneError = getPhoneValidationError(user.phoneNumber);
-  if (phoneError) errors.phoneNumber = phoneError;
-
-  return errors;
-};
-
-const normalizeUser = (user: User): User => ({
-  uid: user.uid.trim(),
-  firstName: user.firstName.trim(),
-  lastName: user.lastName.trim(),
-  username: user.username.trim(),
-  email: user.email.trim(),
-  phoneNumber: user.phoneNumber.trim(),
-  accessAllowed: user.accessAllowed,
-  hiredSince: user.hiredSince ? new Date(user.hiredSince).toISOString() : '',
-  location: user.location?.trim() ?? '',
-});
 
 export default function UserDetailDialog({
   open,

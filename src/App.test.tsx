@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import App from './App';
 import { useUserStore } from './stores/userStore';
 import type { User } from './types/User';
+import { validateUser } from './utils/userValidation';
 
 const makeUser = (uid: string, firstName = 'Test'): User => ({
   uid,
@@ -39,6 +40,26 @@ describe('ImportDialog', () => {
 
     expect(within(dialog).getAllByText(/users\.csv/i).length).toBeGreaterThan(0);
     expect(within(dialog).getByRole('button', { name: /^next$/i })).toBeEnabled();
+  });
+});
+
+describe('shared user validation', () => {
+  it('validates required fields and duplicate emails outside the dialog', () => {
+    const user: User = {
+      uid: 'u-99',
+      firstName: 'New',
+      lastName: 'Person',
+      username: 'new.person',
+      email: 'u-1@example.com',
+      phoneNumber: '123456789',
+      accessAllowed: true,
+      hiredSince: '2024-01-01',
+      location: 'Prague',
+    };
+
+    expect(validateUser(user, [makeUser('u-1', 'Alice')])).toMatchObject({
+      email: 'Email already exists.',
+    });
   });
 });
 

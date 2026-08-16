@@ -58,15 +58,15 @@ export default function UsersTable({
                   onChange={handleSelectAll}
                 />
               </TableCell>
-              <TableCell>UID</TableCell>
-              <TableCell>First name</TableCell>
-              <TableCell>Last name</TableCell>
-              <TableCell>Username</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Access allowed</TableCell>
-              <TableCell>Hired since</TableCell>
-              <TableCell>Location</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>UID</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>First name</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>Last name</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>Username</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>Email</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>Phone</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>Access allowed</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>Hired since</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>Location</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -94,17 +94,19 @@ export default function UsersTable({
                       }}
                     />
                   </TableCell>
-                  <TableCell>{u.uid}</TableCell>
-                  <TableCell>{u.firstName}</TableCell>
-                  <TableCell>{u.lastName}</TableCell>
-                  <TableCell>{u.username}</TableCell>
-                  <TableCell>{u.email}</TableCell>
-                  <TableCell>{u.phoneNumber}</TableCell>
-                  <TableCell>{u.accessAllowed ? 'Yes' : 'No'}</TableCell>
-                  <TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>{u.uid}</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>{u.firstName}</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>{u.lastName}</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>{u.username}</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>{u.email}</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>{u.phoneNumber}</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                    {u.accessAllowed ? 'Yes' : 'No'}
+                  </TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>
                     {u.hiredSince ? new Date(u.hiredSince).toLocaleDateString() : ''}
                   </TableCell>
-                  <TableCell>{u.location}</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>{u.location}</TableCell>
                 </TableRow>
               );
             })}
