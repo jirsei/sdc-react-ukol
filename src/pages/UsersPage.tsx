@@ -5,6 +5,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import ConfirmDialog from '../components/ConfirmDialog';
 import ImportDialog from '../components/ImportDialog';
+import MapDialog from '../components/MapDialog';
 import UserDetailDialog from '../components/UserDetailDialog';
 import UsersTable from '../components/UsersTable';
 import { useUserStore } from '../stores/userStore';
@@ -31,6 +32,7 @@ export default function UsersPage() {
   const [confirmClearImportOpen, setConfirmClearImportOpen] = useState(false);
   const [pendingClearImportUsers, setPendingClearImportUsers] = useState<User[]>([]);
   const [filterText, setFilterText] = useState('');
+  const [mapDialogOpen, setMapDialogOpen] = useState(false);
 
   const handleRowClick = (u: User) => {
     setSelectedUser(u);
@@ -40,6 +42,10 @@ export default function UsersPage() {
   const handleAddUser = () => {
     setSelectedUser(null);
     setDialogOpen(true);
+  };
+
+  const handleOpenMap = () => {
+    setMapDialogOpen(true);
   };
 
   const handleCloseDialog = () => {
@@ -254,6 +260,9 @@ export default function UsersPage() {
               Delete selected ({selectedIds.length})
             </Button>
           )}
+          <Button variant="outlined" onClick={handleOpenMap}>
+            Map {selectedIds.length > 0 ? `(${String(selectedIds.length)})` : '(all)'}
+          </Button>
           <TextField
             size="small"
             placeholder="Filter users..."
@@ -299,6 +308,15 @@ export default function UsersPage() {
         onClose={handleImportClose}
         onImportMerge={handleImportMerge}
         onClearImport={handleClearAndImport}
+      />
+
+      <MapDialog
+        open={mapDialogOpen}
+        users={users}
+        selectedIds={selectedIds}
+        onClose={() => {
+          setMapDialogOpen(false);
+        }}
       />
 
       <ConfirmDialog

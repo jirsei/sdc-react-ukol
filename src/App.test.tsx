@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import App from './App';
 import { useUserStore } from './stores/userStore';
 import type { User } from './types/User';
@@ -22,6 +22,20 @@ describe('App', () => {
     const content = wrapper.container.querySelector('.app-container');
 
     expect(content).toBeInTheDocument();
+  });
+
+  it('opens and closes the map dialog', async () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('button', { name: /map/i }));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByRole('heading', { name: /^map$/i })).toBeInTheDocument();
+
+    fireEvent.click(within(dialog).getByRole('button', { name: /^close$/i }));
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
   });
 });
 

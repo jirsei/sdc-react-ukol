@@ -3,3 +3,11 @@
   background: var(--app-background);
   font-family: 'Roboto', sans-serif;
 }
+
+.access-marker--allowed {
+  filter: hue-rotate(270deg) saturate(1.8);
+}
+
+.access-marker--denied {
+  filter: hue-rotate(145deg) saturate(1.8);
+}

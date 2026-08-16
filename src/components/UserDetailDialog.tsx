@@ -7,7 +7,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import MapDialog from './MapDialog';
 import type { User } from '../types/User';
+import { generateRandomCzechLocation } from '../utils/location';
 import {
   getEmailValidationError,
   normalizeUser,
@@ -45,7 +47,7 @@ const createEmptyUser = (users: User[] = []): User => ({
   phoneNumber: '',
   accessAllowed: true,
   hiredSince: '',
-  location: '',
+  location: generateRandomCzechLocation(),
 });
 
 const toInputDate = (value?: string) => {
@@ -84,6 +86,7 @@ export default function UserDetailDialog({
   const [actualExistingUsers, setActualExistingUsers] = useState<User[]>(existingUsers);
   const [form, setForm] = useState<User>(() => buildInitialForm(user, actualExistingUsers));
   const [errors, setErrors] = useState<FormErrors>({});
+  const [mapDialogOpen, setMapDialogOpen] = useState(false);
 
   const dialogTitle = useMemo(() => (isEditMode ? 'Edit user' : 'Add user'), [isEditMode]);
 
@@ -154,148 +157,164 @@ export default function UserDetailDialog({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{dialogTitle}</DialogTitle>
-      <DialogContent>
-        <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField
-              fullWidth
-              label="Jméno"
-              value={form.firstName}
-              onChange={(e) => {
-                handleChange('firstName', e.target.value);
-              }}
-              onBlur={(e) => {
-                validateAndSetFieldError('firstName', e.target.value);
-              }}
-              error={Boolean(errors.firstName)}
-              helperText={errors.firstName}
-            />
+    <>
+      <Dialog open={open} onClose={mapDialogOpen ? undefined : onClose} maxWidth="sm" fullWidth>
+        <DialogTitle>{dialogTitle}</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Jméno"
+                value={form.firstName}
+                onChange={(e) => {
+                  handleChange('firstName', e.target.value);
+                }}
+                onBlur={(e) => {
+                  validateAndSetFieldError('firstName', e.target.value);
+                }}
+                error={Boolean(errors.firstName)}
+                helperText={errors.firstName}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Příjmení"
+                value={form.lastName}
+                onChange={(e) => {
+                  handleChange('lastName', e.target.value);
+                }}
+                onBlur={(e) => {
+                  validateAndSetFieldError('lastName', e.target.value);
+                }}
+                error={Boolean(errors.lastName)}
+                helperText={errors.lastName}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Uživatelské jméno"
+                value={form.username}
+                onChange={(e) => {
+                  handleChange('username', e.target.value);
+                }}
+                onBlur={(e) => {
+                  validateAndSetFieldError('username', e.target.value);
+                }}
+                error={Boolean(errors.username)}
+                helperText={errors.username}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="E-mail"
+                value={form.email}
+                onChange={(e) => {
+                  handleChange('email', e.target.value);
+                }}
+                onBlur={(e) => {
+                  validateAndSetFieldError('email', e.target.value);
+                }}
+                error={Boolean(errors.email)}
+                helperText={errors.email}
+                disabled={isEditMode}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Telefonní číslo"
+                value={form.phoneNumber}
+                onChange={(e) => {
+                  handleChange('phoneNumber', e.target.value);
+                }}
+                onBlur={(e) => {
+                  validateAndSetFieldError('phoneNumber', e.target.value);
+                }}
+                error={Boolean(errors.phoneNumber)}
+                helperText={errors.phoneNumber}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                select
+                label="Přístup"
+                value={String(form.accessAllowed)}
+                onChange={(e) => {
+                  handleChange('accessAllowed', e.target.value === 'true');
+                }}
+              >
+                <MenuItem value="true">Přístup</MenuItem>
+                <MenuItem value="false">Bez přístupu</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                type="date"
+                label="Najatý od"
+                slotProps={{ inputLabel: { shrink: true } }}
+                value={form.hiredSince}
+                onChange={(e) => {
+                  handleChange('hiredSince', e.target.value);
+                }}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                fullWidth
+                label="Lokace"
+                value={form.location}
+                onChange={(e) => {
+                  handleChange('location', e.target.value);
+                }}
+              />
+            </Grid>
           </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField
-              fullWidth
-              label="Příjmení"
-              value={form.lastName}
-              onChange={(e) => {
-                handleChange('lastName', e.target.value);
-              }}
-              onBlur={(e) => {
-                validateAndSetFieldError('lastName', e.target.value);
-              }}
-              error={Boolean(errors.lastName)}
-              helperText={errors.lastName}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField
-              fullWidth
-              label="Uživatelské jméno"
-              value={form.username}
-              onChange={(e) => {
-                handleChange('username', e.target.value);
-              }}
-              onBlur={(e) => {
-                validateAndSetFieldError('username', e.target.value);
-              }}
-              error={Boolean(errors.username)}
-              helperText={errors.username}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField
-              fullWidth
-              label="E-mail"
-              value={form.email}
-              onChange={(e) => {
-                handleChange('email', e.target.value);
-              }}
-              onBlur={(e) => {
-                validateAndSetFieldError('email', e.target.value);
-              }}
-              error={Boolean(errors.email)}
-              helperText={errors.email}
-              disabled={isEditMode}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField
-              fullWidth
-              label="Telefonní číslo"
-              value={form.phoneNumber}
-              onChange={(e) => {
-                handleChange('phoneNumber', e.target.value);
-              }}
-              onBlur={(e) => {
-                validateAndSetFieldError('phoneNumber', e.target.value);
-              }}
-              error={Boolean(errors.phoneNumber)}
-              helperText={errors.phoneNumber}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField
-              fullWidth
-              select
-              label="Přístup"
-              value={String(form.accessAllowed)}
-              onChange={(e) => {
-                handleChange('accessAllowed', e.target.value === 'true');
-              }}
-            >
-              <MenuItem value="true">Přístup</MenuItem>
-              <MenuItem value="false">Bez přístupu</MenuItem>
-            </TextField>
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField
-              fullWidth
-              type="date"
-              label="Najatý od"
-              slotProps={{ inputLabel: { shrink: true } }}
-              value={form.hiredSince}
-              onChange={(e) => {
-                handleChange('hiredSince', e.target.value);
-              }}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField
-              fullWidth
-              label="Lokace"
-              value={form.location}
-              onChange={(e) => {
-                handleChange('location', e.target.value);
-              }}
-            />
-          </Grid>
-        </Grid>
-      </DialogContent>
+        </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button
-          variant="contained"
-          onClick={() => {
-            handleSubmit(false);
-          }}
-          disabled={submitDisabled}
-        >
-          {isEditMode ? 'Save' : 'Add'}
-        </Button>
-        {!isEditMode && (
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setMapDialogOpen(true);
+            }}
+          >
+            Map
+          </Button>
+          <Button onClick={onClose}>Cancel</Button>
           <Button
             variant="contained"
             onClick={() => {
-              handleSubmit(true);
+              handleSubmit(false);
             }}
             disabled={submitDisabled}
           >
-            Add another
+            {isEditMode ? 'Save' : 'Add'}
           </Button>
-        )}
-      </DialogActions>
-    </Dialog>
+          {!isEditMode && (
+            <Button
+              variant="contained"
+              onClick={() => {
+                handleSubmit(true);
+              }}
+              disabled={submitDisabled}
+            >
+              Add another
+            </Button>
+          )}
+        </DialogActions>
+      </Dialog>
+      <MapDialog
+        open={mapDialogOpen}
+        users={[form]}
+        onClose={() => {
+          setMapDialogOpen(false);
+        }}
+      />
+    </>
   );
 }
