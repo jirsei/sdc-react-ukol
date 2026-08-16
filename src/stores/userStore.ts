@@ -8,6 +8,7 @@ interface UserState {
   rowsPerPage: number;
   setUsers: (u: User[]) => void;
   addUser: (u: User) => void;
+  updateUser: (u: User) => void;
   toggleSelect: (uid: string) => void;
   clearSelection: () => void;
   selectAll: (uids: string[]) => void;
@@ -64,6 +65,16 @@ export const useUserStore = create<UserState>((set) => ({
   addUser: (u) => {
     set((state) => {
       const nextUsers = [u, ...state.users];
+      return {
+        users: nextUsers,
+        page: clampPage(nextUsers, state.rowsPerPage, state.page),
+      };
+    });
+  },
+  updateUser: (u) => {
+    set((state) => {
+      const nextUsers = state.users.map((existing) => (existing.uid === u.uid ? u : existing));
+
       return {
         users: nextUsers,
         page: clampPage(nextUsers, state.rowsPerPage, state.page),

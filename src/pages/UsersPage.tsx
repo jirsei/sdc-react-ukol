@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import UserDetailDialog from '../components/UserDetailDialog';
 import UsersTable from '../components/UsersTable';
 import { useUserStore } from '../stores/userStore';
 import type { User } from '../types/User';
@@ -13,12 +15,36 @@ export default function UsersPage() {
   const toggleSelect = useUserStore((s) => s.toggleSelect);
   const selectAll = useUserStore((s) => s.selectAll);
   const deleteSelected = useUserStore((s) => s.deleteSelected);
+  const addUser = useUserStore((s) => s.addUser);
+  const updateUser = useUserStore((s) => s.updateUser);
   const setPage = useUserStore((s) => s.setPage);
   const setRowsPerPage = useUserStore((s) => s.setRowsPerPage);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const handleRowClick = (u: User) => {
-    // detail view to be implemented later
-    console.log('row clicked', u.uid);
+    setSelectedUser(u);
+    setDialogOpen(true);
+  };
+
+  const handleAddUser = () => {
+    setSelectedUser(null);
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setSelectedUser(null);
+  };
+
+  const handleSubmitUser = (user: User) => {
+    if (selectedUser) {
+      updateUser(user);
+    } else {
+      addUser(user);
+    }
+
+    handleCloseDialog();
   };
 
   const handleSelectAllVisible = (uids: string[]) => {
@@ -44,7 +70,9 @@ export default function UsersPage() {
           <Button variant="outlined" sx={{ mr: 1 }}>
             Import
           </Button>
-          <Button variant="contained">Add user</Button>
+          <Button variant="contained" onClick={handleAddUser}>
+            Add user
+          </Button>
         </Box>
       </Box>
 
@@ -66,6 +94,19 @@ export default function UsersPage() {
         onRowClick={handleRowClick}
         onPageChange={setPage}
         onRowsPerPageChange={setRowsPerPage}
+      />
+
+      <UserDetailDialog
+        key={
+          dialogOpen
+            ? `dialog-${selectedUser?.uid ?? 'new-user'}`
+            : `dialog-closed-${selectedUser?.uid ?? 'new-user'}`
+        }
+        open={dialogOpen}
+        user={selectedUser}
+        existingUsers={users}
+        onClose={handleCloseDialog}
+        onSubmit={handleSubmitUser}
       />
     </Box>
   );

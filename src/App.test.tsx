@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import App from './App';
 import { useUserStore } from './stores/userStore';
 import type { User } from './types/User';
@@ -35,7 +35,7 @@ describe('userStore pagination safety', () => {
       ],
       selectedIds: ['u-1', 'u-2', 'u-4'],
       page: 10,
-      rowsPerPage: 2,
+      rowsPerPage: 5,
     });
   });
 
@@ -49,5 +49,110 @@ describe('userStore pagination safety', () => {
     expect(useUserStore.getState().page).toBe(0);
     expect(useUserStore.getState().selectedIds).toEqual([]);
     expect(useUserStore.getState().users).toHaveLength(2);
+  });
+});
+
+describe('UserDetailDialog', () => {
+  beforeEach(() => {
+    useUserStore.setState({
+      users: [makeUser('u-1', 'Alice'), makeUser('u-2', 'Bob')],
+      selectedIds: [],
+      page: 0,
+      rowsPerPage: 5,
+    });
+  });
+
+  it('opens the create-user dialog and adds a user', async () => {
+    render(<App />);
+
+    fireEvent.click(screen.getAllByRole('button', { name: /add user/i })[0]);
+
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByRole('heading', { name: /add user/i })).toBeInTheDocument();
+
+    fireEvent.change(within(dialog).getByLabelText(/first name/i), {
+      target: { value: 'New' },
+    });
+    fireEvent.change(within(dialog).getByLabelText(/last name/i), {
+      target: { value: 'Person' },
+    });
+    fireEvent.change(within(dialog).getByLabelText(/^username$/i), {
+      target: { value: 'new.person' },
+    });
+    fireEvent.change(within(dialog).getByLabelText(/email/i), {
+      target: { value: 'new@example.com' },
+    });
+    fireEvent.change(within(dialog).getByLabelText(/phone number/i), {
+      target: { value: '123456789' },
+    });
+
+    fireEvent.click(within(dialog).getByRole('button', { name: /^add$/i }));
+
+    expect(screen.getByText('New')).toBeInTheDocument();
+  });
+
+  it('disables add when the form is empty or invalid', async () => {
+    render(<App />);
+
+    fireEvent.click(screen.getAllByRole('button', { name: /add user/i })[0]);
+    const dialog = await screen.findByRole('dialog');
+    const addButton = within(dialog).getByRole('button', { name: /^add$/i });
+
+    expect(addButton).toBeDisabled();
+
+    fireEvent.change(within(dialog).getByLabelText(/first name/i), {
+      target: { value: 'New' },
+    });
+    fireEvent.change(within(dialog).getByLabelText(/last name/i), {
+      target: { value: 'Person' },
+    });
+    fireEvent.change(within(dialog).getByLabelText(/^username$/i), {
+      target: { value: 'new.person' },
+    });
+    fireEvent.change(within(dialog).getByLabelText(/email/i), {
+      target: { value: 'not-an-email' },
+    });
+
+    expect(within(dialog).getByRole('button', { name: /^add$/i })).toBeDisabled();
+  });
+
+  it('shows a red validation message after an invalid field is blurred', async () => {
+    render(<App />);
+
+    fireEvent.click(screen.getAllByRole('button', { name: /add user/i })[0]);
+    const dialog = await screen.findByRole('dialog');
+    const emailInput = within(dialog).getByLabelText(/email/i);
+
+    fireEvent.change(emailInput, { target: { value: 'bad-email' } });
+    fireEvent.blur(emailInput);
+
+    expect(emailInput).toHaveAttribute('aria-invalid', 'true');
+    expect(within(dialog).getByText(/email is invalid\./i)).toBeInTheDocument();
+  });
+
+  it('blocks duplicate email addresses and auto-generates a unique UID', async () => {
+    render(<App />);
+
+    fireEvent.click(screen.getAllByRole('button', { name: /add user/i })[0]);
+    const dialog = await screen.findByRole('dialog');
+    const emailInput = within(dialog).getByLabelText(/email/i);
+
+    fireEvent.change(within(dialog).getByLabelText(/first name/i), {
+      target: { value: 'New' },
+    });
+    fireEvent.change(within(dialog).getByLabelText(/last name/i), {
+      target: { value: 'Person' },
+    });
+    fireEvent.change(within(dialog).getByLabelText(/^username$/i), {
+      target: { value: 'new.person' },
+    });
+    fireEvent.change(emailInput, { target: { value: 'u-1@example.com' } });
+    fireEvent.change(within(dialog).getByLabelText(/phone number/i), {
+      target: { value: '123456789' },
+    });
+    fireEvent.blur(emailInput);
+
+    expect(within(dialog).getByText(/email already exists\./i)).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: /^add$/i })).toBeDisabled();
   });
 });

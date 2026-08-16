@@ -4,7 +4,7 @@ export interface User {
   lastName: string;
   username: string;
   email: string;
-  phoneNumber?: string;
+  phoneNumber: string;
   accessAllowed: boolean;
   hiredSince?: string; // ISO date
   location?: string;
