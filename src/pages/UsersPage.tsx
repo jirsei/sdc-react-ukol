@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import ConfirmDialog from '../components/ConfirmDialog';
 import UserDetailDialog from '../components/UserDetailDialog';
 import UsersTable from '../components/UsersTable';
 import { useUserStore } from '../stores/userStore';
@@ -21,6 +22,7 @@ export default function UsersPage() {
   const setRowsPerPage = useUserStore((s) => s.setRowsPerPage);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   const handleRowClick = (u: User) => {
     setSelectedUser(u);
@@ -53,8 +55,16 @@ export default function UsersPage() {
 
   const handleDeleteSelected = () => {
     if (selectedIds.length === 0) return;
-    if (!confirm(`Delete ${String(selectedIds.length)} selected users?`)) return;
+    setConfirmDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
     deleteSelected();
+    setConfirmDeleteOpen(false);
+  };
+
+  const handleCancelDelete = () => {
+    setConfirmDeleteOpen(false);
   };
 
   const maxPage = Math.max(0, Math.ceil(users.length / rowsPerPage) - 1);
@@ -107,6 +117,16 @@ export default function UsersPage() {
         existingUsers={users}
         onClose={handleCloseDialog}
         onSubmit={handleSubmitUser}
+      />
+
+      <ConfirmDialog
+        open={confirmDeleteOpen}
+        title="Delete users"
+        question={`Delete ${String(selectedIds.length)} selected users?`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
       />
     </Box>
   );
