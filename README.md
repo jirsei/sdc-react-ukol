@@ -25,3 +25,5 @@ pnpm run dev
 ```
 
 **You can also use NPM or any other package manager if you wish but package versions can be slightly different (potentionaly breaking something)**
+
+**Use react-data.csv for import testing**
