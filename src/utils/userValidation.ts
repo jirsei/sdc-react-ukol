@@ -49,9 +49,16 @@ export const normalizeUser = (user: User): User => ({
   email: user.email.trim(),
   phoneNumber: user.phoneNumber.trim(),
   accessAllowed: user.accessAllowed,
-  hiredSince: user.hiredSince ? new Date(user.hiredSince).toISOString() : '',
+  hiredSince: normalizeHiredSince(user.hiredSince),
   location: user.location?.trim() ?? '',
 });
+
+const normalizeHiredSince = (hiredSince?: string): string => {
+  if (!hiredSince) return '';
+
+  const date = new Date(hiredSince);
+  return Number.isNaN(date.getTime()) ? '' : date.toISOString();
+};
 
 export const validateUser = (
   user: User,

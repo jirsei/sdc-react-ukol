@@ -128,8 +128,9 @@ export default function UsersPage() {
   };
 
   const handleImportMerge = (newUsers: User[]) => {
+    const { users: currentUsers, setUsers } = useUserStore.getState();
     const hasDuplicates = newUsers.some((incomingUser) =>
-      users.some(
+      currentUsers.some(
         (existingUser) =>
           existingUser.uid === incomingUser.uid ||
           normalizeEmail(existingUser.email) === normalizeEmail(incomingUser.email),
@@ -142,7 +143,7 @@ export default function UsersPage() {
       return;
     }
 
-    useUserStore.getState().setUsers([...users, ...newUsers]);
+    setUsers([...currentUsers, ...newUsers]);
     setImportDialogOpen(false);
   };
 
@@ -152,24 +153,26 @@ export default function UsersPage() {
       return;
     }
 
-    const mergedUsers = mergeUsers(users, pendingImportUsers, true);
-    useUserStore.getState().setUsers(mergedUsers);
+    const { users: currentUsers, setUsers } = useUserStore.getState();
+    const mergedUsers = mergeUsers(currentUsers, pendingImportUsers, true);
+    setUsers(mergedUsers);
     setPendingImportUsers([]);
     setConfirmOverwriteOpen(false);
     setImportDialogOpen(false);
   };
 
   const handleSkipDuplicatesImport = () => {
+    const { users: currentUsers, setUsers } = useUserStore.getState();
     const uniqueUsers = pendingImportUsers.filter(
       (incomingUser) =>
-        !users.some(
+        !currentUsers.some(
           (existingUser) =>
             existingUser.uid === incomingUser.uid ||
             normalizeEmail(existingUser.email) === normalizeEmail(incomingUser.email),
         ),
     );
 
-    useUserStore.getState().setUsers([...users, ...uniqueUsers]);
+    setUsers([...currentUsers, ...uniqueUsers]);
     setPendingImportUsers([]);
     setConfirmOverwriteOpen(false);
     setImportDialogOpen(false);

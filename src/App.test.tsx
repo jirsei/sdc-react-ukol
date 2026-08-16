@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import App from './App';
 import { useUserStore } from './stores/userStore';
 import type { User } from './types/User';
-import { validateUser } from './utils/userValidation';
+import { normalizeUser, validateUser } from './utils/userValidation';
 
 const makeUser = (uid: string, firstName = 'Test'): User => ({
   uid,
@@ -55,9 +55,49 @@ describe('ImportDialog', () => {
     expect(within(dialog).getAllByText(/users\.csv/i).length).toBeGreaterThan(0);
     expect(within(dialog).getByRole('button', { name: /^next$/i })).toBeEnabled();
   });
+
+  it('marks duplicate emails within the CSV batch as invalid', async () => {
+    render(<App />);
+
+    fireEvent.click(screen.getByRole('button', { name: /import/i }));
+    const dialog = await screen.findByRole('dialog');
+    const input = within(dialog).getByLabelText(/select csv file/i);
+    const file = new File(
+      [
+        'uid;firstName;lastName;email;phoneNumber\n' +
+          'u-import-1;Alice;Smith;shared@example.com;123456789\n' +
+          'u-import-2;Bob;Jones;shared@example.com;987654321',
+      ],
+      'users.csv',
+      { type: 'text/csv' },
+    );
+    Object.defineProperty(file, 'text', {
+      value: () =>
+        Promise.resolve(
+          'uid;firstName;lastName;email;phoneNumber\n' +
+            'u-import-1;Alice;Smith;shared@example.com;123456789\n' +
+            'u-import-2;Bob;Jones;shared@example.com;987654321',
+        ),
+    });
+
+    fireEvent.change(input, { target: { files: [file] } });
+    fireEvent.click(within(dialog).getByRole('button', { name: /^next$/i }));
+
+    expect(await within(dialog).findByText('1 valid users')).toBeInTheDocument();
+    expect(within(dialog).getByText('1 invalid')).toBeInTheDocument();
+  });
 });
 
 describe('shared user validation', () => {
+  it('normalizes invalid hiredSince values without throwing', () => {
+    expect(
+      normalizeUser({
+        ...makeUser('u-invalid-date'),
+        hiredSince: 'not-a-date',
+      }).hiredSince,
+    ).toBe('');
+  });
+
   it('validates required fields and duplicate emails outside the dialog', () => {
     const user: User = {
       uid: 'u-99',

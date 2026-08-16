@@ -122,6 +122,7 @@ const readImportedRows = (
   }
 
   const seenUids = new Set<string>();
+  const importedUsers: User[] = [];
 
   const importedRows: ImportedRow[] = rows.slice(1).flatMap((row, rowIndex) => {
     const trimmedRow = row.map((cell) => cell.trim());
@@ -164,10 +165,10 @@ const readImportedRows = (
     };
 
     const normalizedUser = normalizeUser(user);
-    const fieldErrors = validateUser(normalizedUser, [], uid);
+    const fieldErrors = validateUser(normalizedUser, importedUsers, normalizedUser.uid);
     const errors: string[] = Object.values(fieldErrors);
 
-    if (seenUids.has(uid)) {
+    if (seenUids.has(normalizedUser.uid)) {
       errors.push('Duplicate UID in the CSV file.');
     }
 
@@ -178,7 +179,8 @@ const readImportedRows = (
           existingUser.email.trim().toLowerCase() === normalizedUser.email.trim().toLowerCase(),
       );
 
-    seenUids.add(uid);
+    seenUids.add(normalizedUser.uid);
+    importedUsers.push(normalizedUser);
 
     return [
       {
