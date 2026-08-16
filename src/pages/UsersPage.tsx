@@ -47,14 +47,16 @@ export default function UsersPage() {
     setSelectedUser(null);
   };
 
-  const handleSubmitUser = (user: User) => {
+  const handleSubmitUser = (user: User, addAnother = false) => {
     if (selectedUser) {
       updateUser(user);
     } else {
       addUser(user);
     }
 
-    handleCloseDialog();
+    if (!addAnother) {
+      handleCloseDialog();
+    }
   };
 
   const handleSelectAllVisible = (uids: string[]) => {

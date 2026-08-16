@@ -1,12 +1,11 @@
 import { useMemo, useState } from 'react';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
+import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import type { User } from '../types/User';
 import {
@@ -21,17 +20,17 @@ interface UserDetailDialogProps {
   user?: User | null;
   existingUsers?: User[];
   onClose: () => void;
-  onSubmit: (user: User) => void;
+  onSubmit: (user: User, addAnother?: boolean) => void;
 }
 
 const generateUniqueUid = (users: User[] = []): string => {
   const usedIds = new Set(users.map((user) => user.uid).filter(Boolean));
   let nextIndex = 1;
-  let candidate = `u-${String(nextIndex)}`;
+  let candidate = String(nextIndex);
 
   while (usedIds.has(candidate)) {
     nextIndex += 1;
-    candidate = `u-${String(nextIndex)}`;
+    candidate = String(nextIndex);
   }
 
   return candidate;
@@ -82,7 +81,8 @@ export default function UserDetailDialog({
   onSubmit,
 }: UserDetailDialogProps) {
   const isEditMode = Boolean(user);
-  const [form, setForm] = useState<User>(() => buildInitialForm(user, existingUsers));
+  const [actualExistingUsers, setActualExistingUsers] = useState<User[]>(existingUsers);
+  const [form, setForm] = useState<User>(() => buildInitialForm(user, actualExistingUsers));
   const [errors, setErrors] = useState<FormErrors>({});
 
   const dialogTitle = useMemo(() => (isEditMode ? 'Edit user' : 'Add user'), [isEditMode]);
@@ -92,7 +92,11 @@ export default function UserDetailDialog({
     setForm(nextForm);
 
     if (field === 'email' && !isEditMode) {
-      const nextEmailError = getEmailValidationError(String(value ?? ''), existingUsers, user?.uid);
+      const nextEmailError = getEmailValidationError(
+        String(value ?? ''),
+        actualExistingUsers,
+        user?.uid,
+      );
       setErrors((current) => ({ ...current, email: nextEmailError }));
       return;
     }
@@ -102,7 +106,7 @@ export default function UserDetailDialog({
 
   const validateAndSetFieldError = <K extends keyof User>(field: K, value: User[K]) => {
     const nextForm = { ...form, [field]: value };
-    const nextErrors = validateUser(normalizeUser(nextForm), existingUsers, user?.uid);
+    const nextErrors = validateUser(normalizeUser(nextForm), actualExistingUsers, user?.uid);
 
     setForm(nextForm);
     setErrors((current) => ({
@@ -113,8 +117,8 @@ export default function UserDetailDialog({
 
   const submitDisabled = (() => {
     const normalizedForm = normalizeUser(form);
-    const nextErrors = validateUser(normalizedForm, existingUsers, user?.uid);
-    const originalUser = user ? normalizeUser(buildInitialForm(user, existingUsers)) : null;
+    const nextErrors = validateUser(normalizedForm, actualExistingUsers, user?.uid);
+    const originalUser = user ? normalizeUser(buildInitialForm(user, actualExistingUsers)) : null;
 
     if (Object.keys(nextErrors).length > 0) {
       return true;
@@ -132,16 +136,21 @@ export default function UserDetailDialog({
     return originalUser !== null && JSON.stringify(originalUser) === JSON.stringify(normalizedForm);
   })();
 
-  const handleSubmit = () => {
+  const handleSubmit = (addAnother = false) => {
     const normalizedForm = normalizeUser(form);
-    const nextErrors = validateUser(normalizedForm, existingUsers, user?.uid);
+    const nextErrors = validateUser(normalizedForm, actualExistingUsers, user?.uid);
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length > 0) {
       return;
     }
 
-    onSubmit(normalizedForm);
+    onSubmit(normalizedForm, addAnother);
+    if (addAnother) {
+      setActualExistingUsers([...actualExistingUsers, normalizedForm]);
+      setForm(buildInitialForm(undefined, [...actualExistingUsers, normalizedForm]));
+      setErrors({});
+    }
   };
 
   return (
@@ -152,7 +161,7 @@ export default function UserDetailDialog({
           <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
-              label="First name"
+              label="Jméno"
               value={form.firstName}
               onChange={(e) => {
                 handleChange('firstName', e.target.value);
@@ -167,7 +176,7 @@ export default function UserDetailDialog({
           <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
-              label="Last name"
+              label="Příjmení"
               value={form.lastName}
               onChange={(e) => {
                 handleChange('lastName', e.target.value);
@@ -182,7 +191,7 @@ export default function UserDetailDialog({
           <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
-              label="Username"
+              label="Uživatelské jméno"
               value={form.username}
               onChange={(e) => {
                 handleChange('username', e.target.value);
@@ -197,7 +206,7 @@ export default function UserDetailDialog({
           <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
-              label="Email"
+              label="E-mail"
               value={form.email}
               onChange={(e) => {
                 handleChange('email', e.target.value);
@@ -213,7 +222,7 @@ export default function UserDetailDialog({
           <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
-              label="Phone number"
+              label="Telefonní číslo"
               value={form.phoneNumber}
               onChange={(e) => {
                 handleChange('phoneNumber', e.target.value);
@@ -225,29 +234,25 @@ export default function UserDetailDialog({
               helperText={errors.phoneNumber}
             />
           </Grid>
-          <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex', alignItems: 'center' }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={form.accessAllowed}
-                  onChange={(e) => {
-                    handleChange('accessAllowed', e.target.checked);
-                  }}
-                />
-              }
-              label="Access allowed"
-              sx={{
-                '& .MuiFormControlLabel-label': {
-                  color: !form.accessAllowed && errors.accessAllowed ? 'error.main' : 'inherit',
-                },
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TextField
+              fullWidth
+              select
+              label="Přístup"
+              value={String(form.accessAllowed)}
+              onChange={(e) => {
+                handleChange('accessAllowed', e.target.value === 'true');
               }}
-            />
+            >
+              <MenuItem value="true">Přístup</MenuItem>
+              <MenuItem value="false">Bez přístupu</MenuItem>
+            </TextField>
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
               type="date"
-              label="Hired since"
+              label="Najatý od"
               slotProps={{ inputLabel: { shrink: true } }}
               value={form.hiredSince}
               onChange={(e) => {
@@ -258,7 +263,7 @@ export default function UserDetailDialog({
           <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               fullWidth
-              label="Location"
+              label="Lokace"
               value={form.location}
               onChange={(e) => {
                 handleChange('location', e.target.value);
@@ -270,9 +275,26 @@ export default function UserDetailDialog({
 
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleSubmit} disabled={submitDisabled}>
+        <Button
+          variant="contained"
+          onClick={() => {
+            handleSubmit(false);
+          }}
+          disabled={submitDisabled}
+        >
           {isEditMode ? 'Save' : 'Add'}
         </Button>
+        {!isEditMode && (
+          <Button
+            variant="contained"
+            onClick={() => {
+              handleSubmit(true);
+            }}
+            disabled={submitDisabled}
+          >
+            Add another
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

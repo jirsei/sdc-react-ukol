@@ -109,19 +109,19 @@ describe('UserDetailDialog', () => {
     const dialog = await screen.findByRole('dialog');
     expect(within(dialog).getByRole('heading', { name: /add user/i })).toBeInTheDocument();
 
-    fireEvent.change(within(dialog).getByLabelText(/first name/i), {
+    fireEvent.change(within(dialog).getByLabelText(/^jméno$/i), {
       target: { value: 'New' },
     });
-    fireEvent.change(within(dialog).getByLabelText(/last name/i), {
+    fireEvent.change(within(dialog).getByLabelText(/příjmení/i), {
       target: { value: 'Person' },
     });
-    fireEvent.change(within(dialog).getByLabelText(/^username$/i), {
+    fireEvent.change(within(dialog).getByLabelText(/^uživatelské jméno$/i), {
       target: { value: 'new.person' },
     });
-    fireEvent.change(within(dialog).getByLabelText(/email/i), {
+    fireEvent.change(within(dialog).getByLabelText(/e-mail/i), {
       target: { value: 'new@example.com' },
     });
-    fireEvent.change(within(dialog).getByLabelText(/phone number/i), {
+    fireEvent.change(within(dialog).getByLabelText(/telefonní číslo/i), {
       target: { value: '123456789' },
     });
 
@@ -139,16 +139,16 @@ describe('UserDetailDialog', () => {
 
     expect(addButton).toBeDisabled();
 
-    fireEvent.change(within(dialog).getByLabelText(/first name/i), {
+    fireEvent.change(within(dialog).getByLabelText(/^jméno$/i), {
       target: { value: 'New' },
     });
-    fireEvent.change(within(dialog).getByLabelText(/last name/i), {
+    fireEvent.change(within(dialog).getByLabelText(/příjmení/i), {
       target: { value: 'Person' },
     });
-    fireEvent.change(within(dialog).getByLabelText(/^username$/i), {
+    fireEvent.change(within(dialog).getByLabelText(/^uživatelské jméno$/i), {
       target: { value: 'new.person' },
     });
-    fireEvent.change(within(dialog).getByLabelText(/email/i), {
+    fireEvent.change(within(dialog).getByLabelText(/e-mail/i), {
       target: { value: 'not-an-email' },
     });
 
@@ -160,7 +160,7 @@ describe('UserDetailDialog', () => {
 
     fireEvent.click(screen.getAllByRole('button', { name: /add user/i })[0]);
     const dialog = await screen.findByRole('dialog');
-    const emailInput = within(dialog).getByLabelText(/email/i);
+    const emailInput = within(dialog).getByLabelText(/e-mail/i);
 
     fireEvent.change(emailInput, { target: { value: 'bad-email' } });
     fireEvent.blur(emailInput);
@@ -174,19 +174,19 @@ describe('UserDetailDialog', () => {
 
     fireEvent.click(screen.getAllByRole('button', { name: /add user/i })[0]);
     const dialog = await screen.findByRole('dialog');
-    const emailInput = within(dialog).getByLabelText(/email/i);
+    const emailInput = within(dialog).getByLabelText(/e-mail/i);
 
-    fireEvent.change(within(dialog).getByLabelText(/first name/i), {
+    fireEvent.change(within(dialog).getByLabelText(/^jméno$/i), {
       target: { value: 'New' },
     });
-    fireEvent.change(within(dialog).getByLabelText(/last name/i), {
+    fireEvent.change(within(dialog).getByLabelText(/příjmení/i), {
       target: { value: 'Person' },
     });
-    fireEvent.change(within(dialog).getByLabelText(/^username$/i), {
+    fireEvent.change(within(dialog).getByLabelText(/^uživatelské jméno$/i), {
       target: { value: 'new.person' },
     });
     fireEvent.change(emailInput, { target: { value: 'u-1@example.com' } });
-    fireEvent.change(within(dialog).getByLabelText(/phone number/i), {
+    fireEvent.change(within(dialog).getByLabelText(/telefonní číslo/i), {
       target: { value: '123456789' },
     });
     fireEvent.blur(emailInput);

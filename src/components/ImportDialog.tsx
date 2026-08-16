@@ -379,10 +379,10 @@ export default function ImportDialog({
                 <TableHead>
                   <TableRow>
                     <TableCell sx={{ fontWeight: 600 }}>UID</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>First name</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Last name</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Phone</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Jméno</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Příjmení</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>E-mail</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Telefonní číslo</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
                   </TableRow>
                 </TableHead>

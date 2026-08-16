@@ -59,14 +59,14 @@ export default function UsersTable({
                 />
               </TableCell>
               <TableCell sx={{ whiteSpace: 'nowrap' }}>UID</TableCell>
-              <TableCell sx={{ whiteSpace: 'nowrap' }}>First name</TableCell>
-              <TableCell sx={{ whiteSpace: 'nowrap' }}>Last name</TableCell>
-              <TableCell sx={{ whiteSpace: 'nowrap' }}>Username</TableCell>
-              <TableCell sx={{ whiteSpace: 'nowrap' }}>Email</TableCell>
-              <TableCell sx={{ whiteSpace: 'nowrap' }}>Phone</TableCell>
-              <TableCell sx={{ whiteSpace: 'nowrap' }}>Access allowed</TableCell>
-              <TableCell sx={{ whiteSpace: 'nowrap' }}>Hired since</TableCell>
-              <TableCell sx={{ whiteSpace: 'nowrap' }}>Location</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>Jméno</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>Příjmení</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>Uživatelské jméno</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>E-mail</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>Telefonní číslo</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>Přístup povolen</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>Najatý od</TableCell>
+              <TableCell sx={{ whiteSpace: 'nowrap' }}>Lokace</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
